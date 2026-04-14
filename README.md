@@ -48,3 +48,10 @@ Loader：[fabric](https://fabricmc.net/)
 灵活脚本：[JS Macros](https://jsmacros.wagyourtail.xyz/?/tutorial.html)
 
 视觉可视化：[Maingraph for MC](https://github.com/maingraph-project/for-mc)
+## 许可证
+
+本项目采用 **LGPL-3.0** 许可证。详见 [LICENSE](LICENSE) 文件。
+
+### 依赖与致谢
+- [Baritone](https://github.com/cabaletta/baritone): 本项目基于其 API 构建，Baritone 本身采用 **LGPL-3.0** 许可证。
+- [Fabric API](https://github.com/FabricMC/fabric): 本项目使用 Fabric API 进行开发，其采用 **Apache-2.0** 许可证。
