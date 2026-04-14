@@ -1,0 +1,35 @@
+{
+  "schemaVersion": 1,
+  "id": "mat",
+  "version": "${version}",
+  "name": "MAT",
+  "description": "",
+  "authors": [],
+  "contact": {},
+  "license": "All-Rights-Reserved",
+  "icon": "assets/mat/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "fabric-datagen": [
+      "cn.myflycat.mat.client.MatDataGenerator"
+    ],
+    "client": [
+      "cn.myflycat.mat.client.MatClient"
+    ],
+    "main": [
+      "cn.myflycat.mat.Mat"
+    ]
+  },
+  "mixins": [
+    "mat.mixins.json",
+    {
+      "config": "mat.client.mixins.json",
+      "environment": "client"
+    }
+  ],
+  "depends": {
+    "fabricloader": ">=${loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${minecraft_version}"
+  }
+}
