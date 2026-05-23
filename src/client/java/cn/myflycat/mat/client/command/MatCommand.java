@@ -9,11 +9,15 @@ import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import net.minecraft.text.Text;
+import org.graalvm.polyglot.PolyglotException;
+import org.graalvm.polyglot.SourceSection;
 
 import java.io.IOException;
 import java.util.List;
 
 public final class MatCommand {
+    private static final int MAX_STACK_FRAMES = 6;
+
     private MatCommand() {}
 
     public static void register(ScriptManager manager) {
@@ -105,9 +109,41 @@ public final class MatCommand {
         switch (handle.state()) {
             case DONE -> src.sendFeedback(Text.literal("Script finished: " + handle.name()));
             case CANCELLED -> src.sendFeedback(Text.literal("Script cancelled: " + handle.name()));
-            case FAILED -> src.sendError(Text.literal("Script " + handle.name() + " failed: " +
-                    (handle.error() == null ? "(unknown)" : handle.error().getMessage())));
+            case FAILED -> src.sendError(formatError(handle));
             default -> {}
         }
+    }
+
+    private static Text formatError(ScriptHandle handle) {
+        Throwable t = handle.error();
+        String head = "✗ script " + handle.name() + " failed: ";
+        if (t == null) {
+            return Text.literal(head + "(no error captured)");
+        }
+        String msg = t.getMessage();
+        if (msg == null || msg.isBlank()) {
+            msg = t.getClass().getSimpleName();
+        }
+        StringBuilder sb = new StringBuilder(head).append(msg);
+        if (t instanceof PolyglotException pe) {
+            int shown = 0;
+            for (PolyglotException.StackFrame f : pe.getPolyglotStackTrace()) {
+                if (shown >= MAX_STACK_FRAMES) break;
+                if (f.isHostFrame()) continue;
+                sb.append("\n  at ").append(formatFrame(f));
+                shown++;
+            }
+        }
+        return Text.literal(sb.toString());
+    }
+
+    private static String formatFrame(PolyglotException.StackFrame f) {
+        String fn = f.getRootName();
+        if (fn == null || fn.isEmpty()) fn = "<anonymous>";
+        SourceSection loc = f.getSourceLocation();
+        if (loc == null || loc.getSource() == null) return fn;
+        int line = loc.getStartLine() - 1;
+        String lineStr = line < 1 ? "?" : Integer.toString(line);
+        return fn + " (" + loc.getSource().getName() + ":" + lineStr + ")";
     }
 }
