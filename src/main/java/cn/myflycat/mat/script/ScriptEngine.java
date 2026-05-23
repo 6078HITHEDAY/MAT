@@ -12,7 +12,7 @@ public final class ScriptEngine implements AutoCloseable {
     private final HostAccess hostAccess;
 
     public ScriptEngine() {
-        this(HostAccess.NONE);
+        this(HostAccess.EXPLICIT);
     }
 
     public ScriptEngine(HostAccess hostAccess) {

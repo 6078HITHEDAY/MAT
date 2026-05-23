@@ -9,15 +9,23 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 public final class ScriptManager implements AutoCloseable {
     private final ScriptEngine engine;
     private final ScriptSourceLoader loader;
+    private final Function<ScriptHandle, Object> apiFactory;
     private final Map<String, ScriptHandle> running = new ConcurrentHashMap<>();
 
     public ScriptManager(ScriptEngine engine, ScriptSourceLoader loader) {
+        this(engine, loader, null);
+    }
+
+    public ScriptManager(ScriptEngine engine, ScriptSourceLoader loader,
+                         Function<ScriptHandle, Object> apiFactory) {
         this.engine = engine;
         this.loader = loader;
+        this.apiFactory = apiFactory;
     }
 
     public ScriptSourceLoader loader() {
@@ -67,6 +75,12 @@ public final class ScriptManager implements AutoCloseable {
             return;
         }
         try (Context ctx = engine.newContext()) {
+            if (apiFactory != null) {
+                Object api = apiFactory.apply(handle);
+                if (api != null) {
+                    ctx.getBindings("js").putMember("mat", api);
+                }
+            }
             ScriptSource src = loader.load(handle.name());
             ctx.eval(src.source());
             if (handle.isCancelRequested()) {

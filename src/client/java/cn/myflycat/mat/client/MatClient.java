@@ -1,6 +1,7 @@
 package cn.myflycat.mat.client;
 
 import cn.myflycat.mat.Mat;
+import cn.myflycat.mat.client.api.ApiRoot;
 import cn.myflycat.mat.client.command.MatCommand;
 import cn.myflycat.mat.script.ScriptEngine;
 import cn.myflycat.mat.script.ScriptManager;
@@ -31,7 +32,7 @@ public class MatClient implements ClientModInitializer {
 
         ScriptEngine engine = new ScriptEngine();
         ScriptSourceLoader loader = new ScriptSourceLoader(scriptsRoot);
-        scriptManager = new ScriptManager(engine, loader);
+        scriptManager = new ScriptManager(engine, loader, ApiRoot::new);
         Mat.LOGGER.info("Script root: {}", scriptsRoot);
 
         MatCommand.register(scriptManager);
