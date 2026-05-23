@@ -19,3 +19,9 @@ hs_err_pid*
 
 # Common working directory
 run
+
+# Third-party jars fetched by scripts/fetch-libs.sh
+libs
+
+# Eclipse JDT compile output
+bin

@@ -28,11 +28,10 @@ fabricApi {
 }
 
 repositories {
-    // Add repositories to retrieve artifacts from in here.
-    // You should only use this when depending on other mods because
-    // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-    // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-    // for more information about repositories.
+    mavenCentral()
+    flatDir {
+        dirs 'libs'
+    }
 }
 
 dependencies {
@@ -42,6 +41,14 @@ dependencies {
     modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+
+    modCompileOnly files('libs/baritone-api-fabric-1.10.4.jar')
+    modRuntimeOnly files('libs/baritone-standalone-fabric-1.10.4.jar')
+
+    implementation "org.graalvm.polyglot:polyglot:${project.graaljs_version}"
+    implementation "org.graalvm.polyglot:js-community:${project.graaljs_version}"
+    include "org.graalvm.polyglot:polyglot:${project.graaljs_version}"
+    include "org.graalvm.polyglot:js-community:${project.graaljs_version}"
 }
 
 processResources {
