@@ -3,11 +3,12 @@
   "id": "mat",
   "version": "${version}",
   "name": "MAT",
-  "description": "",
-  "authors": [],
+  "description": "MC Automation Tools — scriptable Baritone-based automation framework.",
+  "authors": [
+    "myflycat"
+  ],
   "contact": {},
-  "license": "All-Rights-Reserved",
-  "icon": "assets/mat/icon.png",
+  "license": "LGPL-3.0",
   "environment": "client",
   "entrypoints": {
     "fabric-datagen": [
