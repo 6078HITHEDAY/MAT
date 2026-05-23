@@ -47,8 +47,27 @@ dependencies {
 
     implementation "org.graalvm.polyglot:polyglot:${project.graaljs_version}"
     implementation "org.graalvm.polyglot:js-community:${project.graaljs_version}"
-    include "org.graalvm.polyglot:polyglot:${project.graaljs_version}"
-    include "org.graalvm.polyglot:js-community:${project.graaljs_version}"
+
+    // js-community is a POM-only aggregator — Loom's `include` can't follow
+    // its transitives, so enumerate the runtime jars explicitly for JIJ.
+    def graaljsBundled = [
+            "org.graalvm.polyglot:polyglot",
+            "org.graalvm.sdk:collections",
+            "org.graalvm.sdk:nativeimage",
+            "org.graalvm.sdk:word",
+            "org.graalvm.sdk:jniutils",
+            "org.graalvm.js:js-community",
+            "org.graalvm.js:js-language",
+            "org.graalvm.regex:regex",
+            "org.graalvm.truffle:truffle-api",
+            "org.graalvm.truffle:truffle-runtime",
+            "org.graalvm.truffle:truffle-compiler",
+            "org.graalvm.shadowed:icu4j",
+            "org.graalvm.shadowed:xz",
+    ]
+    graaljsBundled.each { coord ->
+        include "${coord}:${project.graaljs_version}"
+    }
 }
 
 processResources {
