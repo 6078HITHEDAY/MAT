@@ -12,6 +12,7 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.TagKey;
+import net.minecraft.screen.slot.SlotActionType;
 import net.minecraft.util.Identifier;
 
 import java.util.ArrayList;
@@ -54,6 +55,44 @@ public final class InventoryAccess {
             p.networkHandler.sendPacket(new UpdateSelectedSlotC2SPacket(index));
             return true;
         });
+    }
+
+    public boolean drop(SlotRef ref) {
+        return clickSlot(ref, 1, SlotActionType.THROW);
+    }
+
+    public boolean quickMove(SlotRef ref) {
+        return clickSlot(ref, 0, SlotActionType.QUICK_MOVE);
+    }
+
+    public boolean swap(int hotbarSlot, SlotRef target) {
+        if (hotbarSlot < 0 || hotbarSlot > 8) return false;
+        return clickSlot(target, hotbarSlot, SlotActionType.SWAP);
+    }
+
+    private boolean clickSlot(SlotRef ref, int button, SlotActionType type) {
+        return ClientThread.runSync(() -> {
+            MinecraftClient mc = MinecraftClient.getInstance();
+            ClientPlayerEntity p = mc.player;
+            if (p == null || mc.interactionManager == null) return false;
+            if (p.currentScreenHandler != p.playerScreenHandler) return false;
+            int sslot = screenSlot(ref);
+            if (sslot < 0) return false;
+            mc.interactionManager.clickSlot(p.currentScreenHandler.syncId, sslot, button, type, p);
+            return true;
+        });
+    }
+
+    private static int screenSlot(SlotRef ref) {
+        if (ref == null) return -1;
+        int s = ref.getSlot();
+        return switch (ref.getContainer()) {
+            case "hotbar" -> (s >= 0 && s <= 8) ? 36 + s : -1;
+            case "inventory" -> (s >= 0 && s <= 26) ? 9 + s : -1;
+            case "armor" -> (s >= 0 && s <= 3) ? 5 + s : -1;
+            case "offhand" -> s == 0 ? 45 : -1;
+            default -> -1;
+        };
     }
 
     private List<SlotRef> collectSlots() {

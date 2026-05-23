@@ -30,4 +30,19 @@ public final class InventoryBindings {
     public boolean selectHotbar(int index) {
         return access.selectHotbar(index);
     }
+
+    @HostAccess.Export
+    public boolean drop(SlotRef ref) {
+        return access.drop(ref);
+    }
+
+    @HostAccess.Export
+    public boolean quickMove(SlotRef ref) {
+        return access.quickMove(ref);
+    }
+
+    @HostAccess.Export
+    public boolean swap(int hotbarSlot, SlotRef target) {
+        return access.swap(hotbarSlot, target);
+    }
 }
