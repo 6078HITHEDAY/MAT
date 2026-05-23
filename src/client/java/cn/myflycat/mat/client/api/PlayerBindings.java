@@ -30,4 +30,44 @@ public final class PlayerBindings {
             return p.getWorld().getRegistryKey().getValue().toString();
         });
     }
+
+    @HostAccess.Export
+    public float yaw() {
+        return ClientThread.runSync(() -> {
+            ClientPlayerEntity p = MinecraftClient.getInstance().player;
+            return p == null ? Float.NaN : p.getYaw();
+        });
+    }
+
+    @HostAccess.Export
+    public float pitch() {
+        return ClientThread.runSync(() -> {
+            ClientPlayerEntity p = MinecraftClient.getInstance().player;
+            return p == null ? Float.NaN : p.getPitch();
+        });
+    }
+
+    @HostAccess.Export
+    public boolean onGround() {
+        return ClientThread.runSync(() -> {
+            ClientPlayerEntity p = MinecraftClient.getInstance().player;
+            return p != null && p.isOnGround();
+        });
+    }
+
+    @HostAccess.Export
+    public int food() {
+        return ClientThread.runSync(() -> {
+            ClientPlayerEntity p = MinecraftClient.getInstance().player;
+            return p == null ? 0 : p.getHungerManager().getFoodLevel();
+        });
+    }
+
+    @HostAccess.Export
+    public float saturation() {
+        return ClientThread.runSync(() -> {
+            ClientPlayerEntity p = MinecraftClient.getInstance().player;
+            return p == null ? Float.NaN : p.getHungerManager().getSaturationLevel();
+        });
+    }
 }
