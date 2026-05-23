@@ -81,8 +81,8 @@ public final class ScriptManager implements AutoCloseable {
                     ctx.getBindings("js").putMember("mat", api);
                 }
             }
-            ScriptSource src = loader.load(handle.name());
-            ctx.eval(src.source());
+            ModuleRegistry modules = new ModuleRegistry(ctx, loader);
+            modules.runEntry(handle.name());
             if (handle.isCancelRequested()) {
                 handle.markCancelled();
             } else {
