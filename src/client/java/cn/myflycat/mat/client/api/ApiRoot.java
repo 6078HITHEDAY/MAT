@@ -7,11 +7,13 @@ public final class ApiRoot {
     @HostAccess.Export public final ChatBindings chat;
     @HostAccess.Export public final PlayerBindings player;
     @HostAccess.Export public final ControlBindings control;
+    @HostAccess.Export public final InventoryBindings inventory;
 
     public ApiRoot(ScriptHandle handle) {
         this.chat = new ChatBindings();
         this.player = new PlayerBindings();
         this.control = new ControlBindings(handle);
+        this.inventory = new InventoryBindings();
     }
 
     @HostAccess.Export
