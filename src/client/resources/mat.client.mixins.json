@@ -4,6 +4,8 @@
   "package": "cn.myflycat.mat.mixin.client",
   "compatibilityLevel": "JAVA_17",
   "client": [
+    "MixinClientPlayerInteractionManager",
+    "MixinClientPlayNetworkHandler"
   ],
   "injectors": {
     "defaultRequire": 1

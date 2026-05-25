@@ -45,4 +45,14 @@ public final class InventoryBindings {
     public boolean swap(int hotbarSlot, SlotRef target) {
         return access.swap(hotbarSlot, target);
     }
+
+    @HostAccess.Export
+    public boolean closeContainer() {
+        return access.closeContainer();
+    }
+
+    @HostAccess.Export
+    public String containerType() {
+        return access.containerType();
+    }
 }

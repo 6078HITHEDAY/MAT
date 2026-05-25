@@ -9,6 +9,7 @@ public final class ApiRoot {
     @HostAccess.Export public final ControlBindings control;
     @HostAccess.Export public final InventoryBindings inventory;
     @HostAccess.Export public final BaritoneBindings baritone;
+    @HostAccess.Export public final RecorderBindings recorder;
 
     public ApiRoot(ScriptHandle handle) {
         this.chat = new ChatBindings();
@@ -16,6 +17,7 @@ public final class ApiRoot {
         this.control = new ControlBindings(handle);
         this.inventory = new InventoryBindings();
         this.baritone = new BaritoneBindings();
+        this.recorder = new RecorderBindings();
     }
 
     @HostAccess.Export

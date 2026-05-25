@@ -1,18 +1,23 @@
 package cn.myflycat.mat.client.command;
 
+import cn.myflycat.mat.client.gui.ScriptBuilderScreen;
+import cn.myflycat.mat.client.recorder.Recorder;
 import cn.myflycat.mat.script.ScriptHandle;
 import cn.myflycat.mat.script.ScriptManager;
+import net.minecraft.client.MinecraftClient;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.mojang.brigadier.suggestion.SuggestionProvider;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.text.Text;
 import org.graalvm.polyglot.PolyglotException;
 import org.graalvm.polyglot.SourceSection;
 
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
 public final class MatCommand {
@@ -34,7 +39,21 @@ public final class MatCommand {
                         .then(ClientCommandManager.literal("list")
                                 .executes(ctx -> listScripts(ctx, manager)))
                         .then(ClientCommandManager.literal("reload")
-                                .executes(ctx -> reloadCache(ctx, manager)))));
+                                .executes(ctx -> reloadCache(ctx, manager)))
+                        .then(ClientCommandManager.literal("new")
+                                .then(ClientCommandManager.argument("name", StringArgumentType.word())
+                                        .executes(MatCommand::newScript)))
+                        .then(ClientCommandManager.literal("edit")
+                                .then(ClientCommandManager.argument("name", StringArgumentType.word())
+                                        .executes(MatCommand::editScript)))
+                        .then(ClientCommandManager.literal("record")
+                                .then(ClientCommandManager.literal("start")
+                                        .executes(MatCommand::recordStart))
+                                .then(ClientCommandManager.literal("stop")
+                                        .executes(MatCommand::recordStop))
+                                .then(ClientCommandManager.literal("save")
+                                        .then(ClientCommandManager.argument("name", StringArgumentType.word())
+                                                .executes(MatCommand::recordSave))))));
     }
 
     private static int runScript(CommandContext<FabricClientCommandSource> ctx, ScriptManager manager) {
@@ -78,6 +97,60 @@ public final class MatCommand {
         var running = manager.runningNames();
         src.sendFeedback(Text.literal("Running (" + running.size() + "): " +
                 (running.isEmpty() ? "<none>" : String.join(", ", running))));
+        return 1;
+    }
+
+    private static int recordStart(CommandContext<FabricClientCommandSource> ctx) {
+        Recorder r = Recorder.getInstance();
+        if (r.isRecording()) {
+            ctx.getSource().sendError(Text.literal("Already recording"));
+            return 0;
+        }
+        r.start();
+        ctx.getSource().sendFeedback(Text.literal("Recording started"));
+        return 1;
+    }
+
+    private static int recordStop(CommandContext<FabricClientCommandSource> ctx) {
+        Recorder r = Recorder.getInstance();
+        if (!r.isRecording()) {
+            ctx.getSource().sendError(Text.literal("Not recording"));
+            return 0;
+        }
+        int count = r.stop().size();
+        ctx.getSource().sendFeedback(Text.literal("Recording stopped: " + count + " actions captured"));
+        return 1;
+    }
+
+    private static int recordSave(CommandContext<FabricClientCommandSource> ctx) {
+        Recorder r = Recorder.getInstance();
+        if (r.isRecording()) {
+            ctx.getSource().sendError(Text.literal("Stop recording before saving"));
+            return 0;
+        }
+        String name = StringArgumentType.getString(ctx, "name");
+        String filename = name.endsWith(".js") ? name : name + ".js";
+        Path out = FabricLoader.getInstance().getConfigDir()
+                .resolve("mat").resolve("scripts").resolve(filename);
+        if (r.save(out)) {
+            ctx.getSource().sendFeedback(Text.literal("Saved recording to " + out));
+            return 1;
+        }
+        ctx.getSource().sendError(Text.literal("No recorded actions to save"));
+        return 0;
+    }
+
+    private static int newScript(CommandContext<FabricClientCommandSource> ctx) {
+        String name = StringArgumentType.getString(ctx, "name");
+        MinecraftClient.getInstance().send(() ->
+                MinecraftClient.getInstance().setScreen(new ScriptBuilderScreen(name)));
+        return 1;
+    }
+
+    private static int editScript(CommandContext<FabricClientCommandSource> ctx) {
+        String name = StringArgumentType.getString(ctx, "name");
+        MinecraftClient.getInstance().send(() ->
+                MinecraftClient.getInstance().setScreen(new ScriptBuilderScreen(name)));
         return 1;
     }
 
